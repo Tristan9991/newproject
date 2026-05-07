@@ -10,9 +10,14 @@ def write_json(data):
     with open("prices.json", "w") as file:
         json.dump(data, file, indent=4)
 
-def write_json(data):
-    with open("prices.json", "w") as file:
-        json.dump(data, file, indent=4)
+class price_entry():
+    def __init__(self, dateString, price):
+        self.date = dateString
+        self.price = price
+
+    def to_dict(self):
+        return {"date": self.date,
+                "price": self.price}
 
 def read_json():
     try:
@@ -34,4 +39,46 @@ options.add_argument("headless")
 driver = webdriver.Edge(options=options)
 
 # URL to site I am scraping
-driver.get("https://www.pokemoncenter.com/?srsltid=AfmBOopeiP4_hc4Nw96UuLoVo8GUvdAO2i97-Ma6EdH7bIo1FyHOXjAP")
+driver.get("https://www.pokemoncenter.com/product/10-10311-114/pokemon-tcg-mega-evolution-ascended-heroes-booster-bundle-6-packs")
+
+# print page title
+print(f"\nWe are looking at the {driver.title}\n")
+
+wait = WebDriverWait(driver, 10)
+
+# this line says: do not do anything until this element is loaded.
+itemPrice = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test='product-price']")))
+
+
+
+data = read_json()
+if data is None:
+    data = []
+
+today = str(date.today())
+currentPrice = float(itemPrice.text.split("$")[1])
+print(f"The current price is ${currentPrice}.")
+
+
+if data:
+    prices = [float(x["price"]) for x in data]
+    lowestPrice = min(prices)
+    highestPrice = max(prices)
+
+    if currentPrice < lowestPrice:
+        print("Very low price")
+    elif currentPrice > highestPrice:
+        print("Very high price")
+
+data.append(price_entry(today, currentPrice).to_dict())
+write_json(data)
+
+
+startingPrice = 26.94
+for x in data:
+    if currentPrice != startingPrice:
+        if currentPrice < startingPrice:
+            print(f"The price decreased on {x.date}.")
+        elif currentPrice > startingPrice:
+            print(f"The price increased on {x.date}.")
+    startingPrice = currentPrice
