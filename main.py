@@ -6,9 +6,20 @@ from selenium.webdriver.support import expected_conditions as EC
 import json
 from datetime import date
 
+
+
 def write_json(data):
     with open("prices.json", "w") as file:
         json.dump(data, file, indent=4)
+
+def read_json():
+    try:
+        with open("prices.json", "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return None
+
+
 
 class price_entry():
     def __init__(self, dateString, price):
@@ -19,12 +30,7 @@ class price_entry():
         return {"date": self.date,
                 "price": self.price}
 
-def read_json():
-    try:
-        with open("prices.json", "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return None
+
 
 # set up options for EDGE browser
 options = webdriver.EdgeOptions()
@@ -50,7 +56,6 @@ wait = WebDriverWait(driver, 10)
 itemPrice = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test='product-price']")))
 
 
-
 data = read_json()
 if data is None:
     data = []
@@ -59,26 +64,3 @@ today = str(date.today())
 currentPrice = float(itemPrice.text.split("$")[1])
 print(f"The current price is ${currentPrice}.")
 
-
-if data:
-    prices = [float(x["price"]) for x in data]
-    lowestPrice = min(prices)
-    highestPrice = max(prices)
-
-    if currentPrice < lowestPrice:
-        print("Very low price")
-    elif currentPrice > highestPrice:
-        print("Very high price")
-
-data.append(price_entry(today, currentPrice).to_dict())
-write_json(data)
-
-
-startingPrice = 26.94
-for x in data:
-    if currentPrice != startingPrice:
-        if currentPrice < startingPrice:
-            print(f"The price decreased on {x.date}.")
-        elif currentPrice > startingPrice:
-            print(f"The price increased on {x.date}.")
-    startingPrice = currentPrice
