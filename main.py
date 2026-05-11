@@ -46,6 +46,8 @@ driver = webdriver.Edge(options=options)
 
 # URL to site I am scraping
 driver.get("https://www.pokemoncenter.com/product/10-10311-114/pokemon-tcg-mega-evolution-ascended-heroes-booster-bundle-6-packs")
+driver.get ("https://www.tcgplayer.com/product/668541?Language=English")
+driver.get ("https://www.walmart.com/ip/Pok-mon-TCG-Mega-Evolution-Ascended-Heroes-Booster-Bundle-6-Packs/18728422476?conditionGroupCode=4&classType=REGULAR&from=/search")
 
 # print page title
 print(f"\nWe are looking at the {driver.title}\n")
