@@ -58,11 +58,21 @@ wait = WebDriverWait(driver, 10)
 itemPrice = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test='product-price']")))
 
 
-data = read_json()
-if data is None:
-    data = []
+print(driver.title)
 
-today = str(date.today())
-currentPrice = float(itemPrice.text.split("$")[1])
-print(f"The current price is ${currentPrice}.")
+wait = WebDriverWait(driver, 10)
+
+itemPrice = wait.until(
+    EC.visibility_of_element_located(
+        (By.CSS_SELECTOR, ".sale-price")
+    )
+)
+
+price_text = itemPrice.text.replace("$", "").strip()
+
+currentPrice = float(price_text)
+
+print(currentPrice)
+
+driver.quit()
 
