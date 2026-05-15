@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import json
-from datetime import date
+
 
 
 
@@ -38,39 +38,21 @@ options = webdriver.EdgeOptions()
 # detach means "detach from python" prevents auto-close
 options.add_experimental_option("detach", True)
 
-# headless means, do NOT open the Edge browser.
-options.add_argument("headless")
+options.add_argument("--start-maximized")
 
 # set up driver and apply the options above
 driver = webdriver.Edge(options=options)
 
-# URL to site I am scraping
-driver.get("https://www.pokemoncenter.com/product/10-10311-114/pokemon-tcg-mega-evolution-ascended-heroes-booster-bundle-6-packs")
-driver.get("https://www.walmart.com/ip/Pok-mon-TCG-Mega-Evolution-Ascended-Heroes-Booster-Bundle-6-Packs/18728422476?conditionGroupCode=4&classType=REGULAR")
-
-# print page title
-print(f"\nWe are looking at the {driver.title}\n")
+driver.get("https://www.tcgplayer.com/product/668541?Language=English")
 
 wait = WebDriverWait(driver, 10)
 
-# this line says: do not do anything until this element is loaded.
-itemPrice = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-test='product-price']")))
+itemPrice = wait.until(
+    EC.presence_of_element_located(
+        (By.CSS_SELECTOR, "span.spotlight__price")
+    )
+)
 
-price_text = itemPrice.text
-print("Raw Price Text:", price_text)
+price_text = itemPrice.get_attribute("textContent")
 
-
-match = (r"\d+(\.\d+)?", price_text)
-
-if match:
-    currentPrice = float(match.group())
-    print("Current Price:", currentPrice)
-
-
-    data = {
-        "website": "Pokemon Center",
-        "price": currentPrice
-    }
-
-    write_json(data)
-
+print("TCGPlayer Price:", price_text)
