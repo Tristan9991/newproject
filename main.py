@@ -74,3 +74,13 @@ existing_data.append(price_entry(today, target_price, "target").to_dict())
 
 write_json(existing_data)
 print("Saved both prices!")
+
+def compare_prices(tcg_price_text, target_price_text):
+    def parse_price(price_text):
+        print(f"Raw price text: '{price_text}'")  # Debug line
+        cleaned = ''.join(c for c in price_text if c.isdigit() or c == '.')
+        print(f"Cleaned price text: '{cleaned}'")  # Debug line
+        if not cleaned:
+            raise ValueError(f"Could not parse price from: '{price_text}'")
+        return float(cleaned)
+
