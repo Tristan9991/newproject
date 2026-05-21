@@ -67,9 +67,9 @@ def compare_prices(tcg_price_text, target_price_text):
     target = parse_price(target_price_text)
     difference = abs(tcg - target)
 
-    print("\n--- Price Comparison ---")
+    print("Price Comparison")
     print(f"TCGPlayer: ${tcg:.2f}")
-    print(f"Target:    ${target:.2f}")
+    print(f"Target: ${target:.2f}")
 
     if tcg < target:
         print(f"TCGPlayer is cheaper by ${difference:.2f}")
