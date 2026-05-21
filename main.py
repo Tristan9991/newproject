@@ -22,12 +22,12 @@ class price_entry():
     def __init__(self, dateString, price, source):
         self.date = dateString
         self.price = price
-        self.source = source  # NEW: track which site the price came from
+        self.source = source
 
     def to_dict(self):
         return {"date": self.date,
                 "price": self.price,
-                "source": self.source}  # NEW
+                "source": self.source}
 
 
 def get_tcgplayer_price(driver, wait):
@@ -43,7 +43,7 @@ def get_tcgplayer_price(driver, wait):
 
 
 def get_target_price(driver, wait):
-    driver.get("https://www.target.com/p/pokemon-me2-5-ascended-heroes-booster-bundle-2-pack/-/A-1011165570#lnk=sametab")
+    driver.get("https://www.target.com/p/pok-233-mon-trading-card-game-mega-evolution-ascended-heroes-booster-bundle/-/A-95120834")
     itemPrice = wait.until(
         EC.presence_of_element_located(
             (By.CSS_SELECTOR, "[data-test='product-price']")
@@ -52,6 +52,33 @@ def get_target_price(driver, wait):
     price_text = itemPrice.get_attribute("textContent").strip()
     print("Target Price:", price_text)
     return price_text
+
+
+def compare_prices(tcg_price_text, target_price_text):
+    def parse_price(price_text):
+        print(f"Raw price text: '{price_text}'")
+        cleaned = ''.join(c for c in price_text if c.isdigit() or c == '.')
+        print(f"Cleaned price text: '{cleaned}'")
+        if not cleaned:
+            raise ValueError(f"Could not parse price from: '{price_text}'")
+        return float(cleaned)
+
+    tcg = parse_price(tcg_price_text)
+    target = parse_price(target_price_text)
+    difference = abs(tcg - target)
+
+    print("\n--- Price Comparison ---")
+    print(f"TCGPlayer: ${tcg:.2f}")
+    print(f"Target:    ${target:.2f}")
+
+    if tcg < target:
+        print(f"TCGPlayer is cheaper by ${difference:.2f}")
+    elif target < tcg:
+        print(f"Target is cheaper by ${difference:.2f}")
+    else:
+        print("Both prices are equal!")
+
+    return tcg, target
 
 options = webdriver.EdgeOptions()
 options.add_experimental_option("detach", True)
@@ -75,12 +102,4 @@ existing_data.append(price_entry(today, target_price, "target").to_dict())
 write_json(existing_data)
 print("Saved both prices!")
 
-def compare_prices(tcg_price_text, target_price_text):
-    def parse_price(price_text):
-        print(f"Raw price text: '{price_text}'")  # Debug line
-        cleaned = ''.join(c for c in price_text if c.isdigit() or c == '.')
-        print(f"Cleaned price text: '{cleaned}'")  # Debug line
-        if not cleaned:
-            raise ValueError(f"Could not parse price from: '{price_text}'")
-        return float(cleaned)
-
+compare_prices(tcg_price, target_price)
